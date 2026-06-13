@@ -6,10 +6,11 @@ import { FooterCta } from "@/components/sections/footer-cta";
 import { HeroSection } from "@/components/sections/hero-section";
 import { ResultsSection } from "@/components/sections/results-section";
 import { WorkflowSection } from "@/components/sections/workflow-section";
+import type { OrchestratorOutput } from "@/lib/orchestrator";
+import { buildStartupPlanMarkdown } from "@/lib/startup-plan-markdown";
 import {
   type AgentRuntimeStatus,
   defaultPrompt,
-  resultCards,
   statHighlights,
   trustItems,
   workflowSteps,
@@ -27,25 +28,13 @@ export function LandingPage() {
   const [prompt, setPrompt] = useState(defaultPrompt);
   const [submittedPrompt, setSubmittedPrompt] = useState(defaultPrompt);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [results, setResults] = useState<OrchestratorOutput | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [statuses, setStatuses] = useState<Record<string, AgentRuntimeStatus>>(
     createQueuedStatuses
   );
 
-  const handlePromptSubmit = async () => {
-    if (isGenerating) {
-      return;
-    }
-
-    const nextPrompt = prompt.trim() || defaultPrompt;
-
-    setPrompt(nextPrompt);
-    setSubmittedPrompt(nextPrompt);
-    setIsGenerating(true);
-    setStatuses(createQueuedStatuses());
-
-    const workflowSection = document.getElementById("workflow");
-    workflowSection?.scrollIntoView({ behavior: "smooth", block: "start" });
-
+  const animateWorkflow = async () => {
     for (const step of workflowSteps) {
       setStatuses((current) => ({
         ...current,
@@ -59,11 +48,90 @@ export function LandingPage() {
       }));
       await runtimeDelay(350);
     }
+  };
 
-    setIsGenerating(false);
+  const handlePromptSubmit = async () => {
+    if (isGenerating) {
+      return;
+    }
 
-    const resultsSection = document.getElementById("results");
-    resultsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const nextPrompt = prompt.trim() || defaultPrompt;
+
+    setPrompt(nextPrompt);
+    setSubmittedPrompt(nextPrompt);
+    setIsGenerating(true);
+    setError(null);
+    setStatuses(createQueuedStatuses());
+
+    const workflowSection = document.getElementById("workflow");
+    workflowSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    try {
+      const requestPromise = fetch("/api/orchestrate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: nextPrompt }),
+      }).then(async (response) => {
+        const body = (await response.json()) as unknown;
+
+        if (
+          !response.ok ||
+          typeof body !== "object" ||
+          body === null ||
+          !("research" in body)
+        ) {
+          const message =
+            typeof body === "object" &&
+            body !== null &&
+            "error" in body &&
+            typeof body.error === "string"
+              ? body.error
+              : "Failed to generate the startup plan.";
+
+          throw new Error(message);
+        }
+
+        return body as OrchestratorOutput;
+      });
+
+      const [orchestratedResults] = await Promise.all([
+        requestPromise,
+        animateWorkflow(),
+      ]);
+
+      setResults(orchestratedResults);
+
+      const resultsSection = document.getElementById("results");
+      resultsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (caughtError) {
+      setResults(null);
+      setStatuses(createQueuedStatuses());
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Failed to generate the startup plan."
+      );
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleExport = () => {
+    if (!results) {
+      return;
+    }
+
+    const markdown = buildStartupPlanMarkdown(submittedPrompt, results);
+    const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "startup-plan.md";
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -85,7 +153,13 @@ export function LandingPage() {
           statuses={statuses}
           isGenerating={isGenerating}
         />
-        <ResultsSection prompt={submittedPrompt} cards={resultCards} />
+        <ResultsSection
+          prompt={submittedPrompt}
+          results={results}
+          error={error}
+          isGenerating={isGenerating}
+          onExport={handleExport}
+        />
         <FooterCta />
       </div>
     </main>

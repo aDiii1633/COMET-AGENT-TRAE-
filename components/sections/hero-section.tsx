@@ -28,11 +28,11 @@ export function HeroSection({
         <nav className="mb-16 flex items-center justify-between gap-6 rounded-full border border-white/10 bg-white/5 px-4 py-3 backdrop-blur md:px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full border border-cyan-300/30 bg-cyan-300/10 text-sm font-semibold text-cyan-100">
-              SP
+              CA
             </div>
             <div>
               <p className="text-sm tracking-[0.28em] text-zinc-400 uppercase">
-                StartupPilot AI
+                COMET AGENT
               </p>
               <p className="text-xs text-zinc-500">Agentic startup execution</p>
             </div>
@@ -59,7 +59,7 @@ export function HeroSection({
           <div className="space-y-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-cyan-300/10 px-4 py-2 text-xs tracking-[0.26em] text-cyan-100 uppercase">
               <Sparkles className="h-3.5 w-3.5" />
-              Startup planning from a single prompt
+              Startup execution from a single prompt
             </div>
 
             <div className="space-y-6">
@@ -67,9 +67,9 @@ export function HeroSection({
                 Turn one startup idea into a research-backed launch system.
               </p>
               <p className="max-w-2xl text-base leading-8 text-zinc-300 sm:text-lg">
-                StartupPilot AI chains research, strategy, content, product,
-                and pitch agents into one premium workflow built for founders
-                who move fast and need signal, not noise.
+                COMET AGENT chains research, strategy, content, product, and
+                pitch agents into one premium workflow built for founders who
+                move fast and need signal, not noise.
               </p>
             </div>
 
@@ -87,7 +87,7 @@ export function HeroSection({
                   value={prompt}
                   onChange={(event) => onPromptChange(event.target.value)}
                   disabled={isGenerating}
-                  placeholder="Describe the startup you want StartupPilot AI to build a plan for"
+                  placeholder="Describe the startup you want COMET AGENT to plan, position, and ship"
                 />
                 <button
                   className="inline-flex h-14 items-center justify-center gap-2 rounded-[1.2rem] bg-cyan-200 px-6 text-sm font-semibold text-zinc-950 transition hover:bg-white disabled:cursor-not-allowed disabled:bg-cyan-200/70"

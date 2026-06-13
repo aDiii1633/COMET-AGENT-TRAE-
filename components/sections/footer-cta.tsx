@@ -13,8 +13,8 @@ export function FooterCta() {
               Give every startup idea a sharper first move.
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
-              StartupPilot AI brings the research deck, roadmap, messaging
-              system, build plan, and pitch story together in one premium flow.
+              COMET AGENT brings the research deck, roadmap, messaging system,
+              build plan, and pitch story together in one premium flow.
             </p>
           </div>
 
@@ -47,7 +47,7 @@ export function FooterCta() {
         </div>
 
         <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>StartupPilot AI</p>
+          <p>COMET AGENT</p>
           <div className="flex flex-wrap gap-4">
             <a className="transition hover:text-white" href="#workflow">
               Workflow

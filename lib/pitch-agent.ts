@@ -14,7 +14,6 @@ export type PitchAgentOutput = {
 };
 
 type PitchAgentInput = {
-  businessIdea: string;
   researchOutput: ResearchAgentOutput;
   strategyOutput: StrategyAgentOutput;
   contentOutput: ContentAgentOutput;
@@ -75,22 +74,12 @@ export function parsePitchAgentResponse(raw: string): PitchAgentOutput {
 }
 
 export function createPitchAgentPrompt({
-  businessIdea,
   researchOutput,
   strategyOutput,
   contentOutput,
   developmentOutput,
 }: PitchAgentInput) {
-  const normalizedIdea = businessIdea.trim();
-
-  if (!normalizedIdea) {
-    throw new Error("Business idea is required.");
-  }
-
-  return `Business Idea:
-${normalizedIdea}
-
-Research Output:
+  return `Research Output:
 ${JSON.stringify(researchOutput, null, 2)}
 
 Strategy Output:

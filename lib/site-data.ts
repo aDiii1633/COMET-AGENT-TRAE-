@@ -26,7 +26,7 @@ export type ResultCard = {
 };
 
 export const defaultPrompt =
-  "Build an AI bookkeeping copilot for solo founders and surface a go-to-market plan.";
+  "Build an AI startup copilot for solo founders and surface a go-to-market plan.";
 
 export const trustItems = [
   "2.4M startup signals mapped",
@@ -103,7 +103,7 @@ export const resultCards: ResultCard[] = [
     bullets: [
       "Headline angle: Your AI finance chief of staff for startup survival and growth.",
       "Email and social hooks focus on confidence, speed, and investor-ready clarity.",
-      "Landing page copy balances premium polish with decisive, no-fluff founder language.",
+      "Landing page copy balances premium polish with decisive, no-fluff COMET AGENT language.",
     ],
   },
   {

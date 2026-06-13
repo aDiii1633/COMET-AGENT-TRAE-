@@ -7,7 +7,7 @@ import {
 } from "./content-agent.ts";
 
 const strategyOutput = {
-  businessName: "LedgerPilot",
+  businessName: "COMET AGENT",
   tagline: "Finance clarity for solo builders.",
   usp: "AI-native bookkeeping built for solo founders.",
   revenueModel: ["Subscription", "Add-on services"],
@@ -25,7 +25,7 @@ test("createContentAgentPrompt includes business idea, strategy output, and sche
   assert.match(prompt, /Business Idea:/);
   assert.match(prompt, /Strategy Output:/);
   assert.match(prompt, /AI bookkeeping copilot for solo founders/);
-  assert.match(prompt, /"businessName": "LedgerPilot"/);
+  assert.match(prompt, /"businessName": "COMET AGENT"/);
   assert.match(prompt, /"youtubeIdeas": \[\]/);
   assert.match(prompt, /exactly 10 strings/);
 });

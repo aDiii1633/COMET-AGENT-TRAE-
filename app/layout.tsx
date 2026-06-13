@@ -13,9 +13,9 @@ const bodyFont = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "StartupPilot AI",
+  title: "COMET AGENT",
   description:
-    "Premium SaaS landing page for an AI startup execution platform powered by specialized agents.",
+    "Premium SaaS landing page for COMET AGENT, an AI startup execution platform powered by specialized agents.",
 };
 
 export default function RootLayout({

@@ -49,27 +49,62 @@ function stripCodeFences(value: string) {
 }
 
 function ensureString(value: unknown, key: keyof DevelopmentAgentOutput) {
-  if (typeof value !== "string") {
-    throw new Error(`Invalid Development Agent response: "${key}" must be a string.`);
-  }
-
-  return value;
-}
-
-function ensureStringArray(value: unknown, key: keyof DevelopmentAgentOutput) {
-  if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+  if (typeof value === "string") {
     return value;
   }
 
-  if (typeof value === "string") {
+  if (value && typeof value === "object") {
+    const normalized = JSON.stringify(value);
+
+    if (normalized !== "{}") {
+      return normalized;
+    }
+  }
+
+  throw new Error(`Invalid Development Agent response: "${key}" must be a string.`);
+}
+
+function normalizeObjectItem(item: Record<string, unknown>) {
+  const parts = Object.values(item)
+    .filter((value) => typeof value === "string")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (parts.length > 0) {
+    return parts.join(": ");
+  }
+}
+
+function ensureStringArray(value: unknown, key: keyof DevelopmentAgentOutput) {
+  if (Array.isArray(value)) {
     const normalized = value
-      .split(/\r?\n|;|,/)
-      .map((item) => item.replace(/^[-*•]\s*/, "").trim())
-      .filter(Boolean);
+      .map((item) => {
+        if (typeof item === "string") {
+          return item.trim();
+        }
+
+        if (item && typeof item === "object") {
+          return normalizeObjectItem(item as Record<string, unknown>);
+        }
+      })
+      .filter((item): item is string => Boolean(item));
 
     if (normalized.length > 0) {
       return normalized;
     }
+  }
+
+  if (typeof value !== "string") {
+    throw new Error(`Invalid Development Agent response: "${key}" must be a string array.`);
+  }
+
+  const normalized = value
+    .split(/\r?\n|;|,/)
+    .map((item) => item.replace(/^[-*•]\s*/, "").trim())
+    .filter(Boolean);
+
+  if (normalized.length > 0) {
+    return normalized;
   }
 
   throw new Error(`Invalid Development Agent response: "${key}" must be a string array.`);

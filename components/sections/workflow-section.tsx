@@ -13,6 +13,14 @@ export function WorkflowSection({
   statuses,
   isGenerating,
 }: WorkflowSectionProps) {
+  const timelineLabels: Record<string, string> = {
+    research: "Research Completed",
+    strategy: "Strategy Generated",
+    content: "Content Created",
+    development: "Landing Page Generated",
+    pitch: "Investor Pitch Ready",
+  };
+
   return (
     <section
       id="workflow"
@@ -27,14 +35,51 @@ export function WorkflowSection({
             Five specialized agents push every idea toward launch readiness.
           </h2>
           <p className="text-sm leading-7 text-zinc-400">
-            Click Generate to watch the workflow animate in sequence with fake
-            client-side execution.
+            Watch the AI workflow timeline animate in sequence as COMET AGENT
+            completes each stage.
           </p>
         </div>
         <p className="max-w-xl text-sm leading-7 text-zinc-400 sm:text-base">
           Each step is tuned for founder decisions: validate the market, frame
           the wedge, write the story, scope the product, and package the pitch.
         </p>
+      </div>
+
+      <div className="mb-8 rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6">
+        <p className="text-xs tracking-[0.3em] text-cyan-100/70 uppercase">
+          AI Workflow Timeline
+        </p>
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {steps.map((step) => {
+            const status = statuses[step.id] ?? "Queued";
+            const isCompleted = status === "Completed";
+            const isLoading = status === "Loading";
+
+            return (
+              <div
+                key={step.id}
+                className={`rounded-2xl border px-4 py-3 text-sm transition ${
+                  isCompleted
+                    ? "border-emerald-300/25 bg-emerald-300/10 text-emerald-100"
+                    : isLoading
+                      ? "border-cyan-200/25 bg-cyan-300/10 text-cyan-100"
+                      : "border-white/10 bg-black/20 text-zinc-400"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {isCompleted ? (
+                    <CheckCircle2 className="h-4 w-4" />
+                  ) : isLoading ? (
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CircleDot className="h-4 w-4" />
+                  )}
+                  <span>{timelineLabels[step.id] ?? step.name}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-5">

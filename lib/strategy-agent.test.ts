@@ -31,7 +31,7 @@ test("createStrategyAgentPrompt includes business idea, research, and exact sche
 
 test("parseStrategyAgentResponse accepts valid JSON output", () => {
   const result = parseStrategyAgentResponse(`{
-    "businessName": "LedgerPilot",
+    "businessName": "COMET AGENT",
     "tagline": "Finance clarity for solo builders.",
     "usp": "An AI-native bookkeeping guide built for single-person startups.",
     "revenueModel": ["Subscription", "Add-on services"],
@@ -40,7 +40,7 @@ test("parseStrategyAgentResponse accepts valid JSON output", () => {
     "launchPlan": ["Waitlist", "Private beta", "Public launch"]
   }`);
 
-  assert.equal(result.businessName, "LedgerPilot");
+  assert.equal(result.businessName, "COMET AGENT");
   assert.equal(result.tagline, "Finance clarity for solo builders.");
   assert.deepEqual(result.launchPlan, ["Waitlist", "Private beta", "Public launch"]);
 });

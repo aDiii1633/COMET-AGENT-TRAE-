@@ -13,7 +13,7 @@ const researchOutput = {
 };
 
 const strategyOutput = {
-  businessName: "LedgerPilot",
+  businessName: "COMET AGENT",
   tagline: "Finance clarity for solo builders.",
   usp: "AI-native bookkeeping built for solo founders.",
   revenueModel: ["Subscription", "Add-on services"],
@@ -35,7 +35,7 @@ const contentOutput = {
 
 const developmentOutput = {
   heroHeadline: "Build your startup finance system in one prompt.",
-  heroSubheading: "StartupPilot AI turns bookkeeping chaos into founder-ready clarity.",
+  heroSubheading: "COMET AGENT turns bookkeeping chaos into founder-ready clarity.",
   features: ["Automated categorization", "Runway insights", "Weekly reports"],
   cta: "Start planning your finance stack",
   pricingSection: "Founder-friendly tiered plans.",
@@ -45,14 +45,12 @@ const developmentOutput = {
 
 test("createPitchAgentPrompt includes all prior outputs and schema", () => {
   const prompt = createPitchAgentPrompt({
-    businessIdea: "AI bookkeeping copilot for solo founders",
     researchOutput,
     strategyOutput,
     contentOutput,
     developmentOutput,
   });
 
-  assert.match(prompt, /Business Idea:/);
   assert.match(prompt, /Research Output:/);
   assert.match(prompt, /Strategy Output:/);
   assert.match(prompt, /Content Output:/);
@@ -64,7 +62,7 @@ test("createPitchAgentPrompt includes all prior outputs and schema", () => {
 test("parsePitchAgentResponse accepts valid JSON output", () => {
   const result = parsePitchAgentResponse(`{
     "problem": "Solo founders struggle with bookkeeping complexity and low visibility.",
-    "solution": "LedgerPilot automates bookkeeping and explains finances in founder language.",
+    "solution": "COMET AGENT automates bookkeeping and explains finances in founder language.",
     "market": "A growing base of solo operators needs simple finance tooling.",
     "businessModel": "Recurring SaaS subscriptions with expansion add-ons.",
     "competitiveAdvantage": "Vertical AI focus on solo-founder finance workflows.",

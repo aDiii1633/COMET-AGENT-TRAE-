@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { resultCards, workflowSteps } from "./site-data.ts";
 
-test("workflow covers the full StartupPilot AI agent sequence", () => {
+test("workflow covers the full COMET AGENT sequence", () => {
   assert.deepEqual(
     workflowSteps.map((step) => step.name),
     [
