@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 
-const displayFont = Fraunces({
-  variable: "--font-display",
+const sansFont = Outfit({
+  variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const bodyFont = Manrope({
-  variable: "--font-body",
+const interFont = Inter({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   title: "COMET AGENT",
   description:
-    "Premium SaaS landing page for COMET AGENT, an AI startup execution platform powered by specialized agents.",
+    "An AI Operating System for Startup Creation. Orchestrate specialized AI agents or use them independently.",
 };
 
 export default function RootLayout({
@@ -24,11 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${displayFont.variable} ${bodyFont.variable} h-full antialiased`}
-    >
-      <body className="min-h-full bg-[var(--background)] font-sans text-[var(--foreground)]">
+    <html lang="en" className={`${sansFont.variable} ${interFont.variable}`}>
+      <body className="min-h-screen bg-background text-text-primary antialiased flex flex-col relative overflow-x-hidden font-sans">
         {children}
       </body>
     </html>

@@ -1,14 +1,27 @@
 import { generateText } from "./gemini.ts";
 import type { StrategyAgentOutput } from "./strategy-agent.ts";
 
+export type DevelopmentFeature = {
+  name: string;
+  description: string;
+};
+
+export type DevKanbanItem = {
+  task: string;
+  priority: "High" | "Medium" | "Low";
+};
+
 export type DevelopmentAgentOutput = {
-  heroHeadline: string;
-  heroSubheading: string;
-  features: string[];
-  cta: string;
-  pricingSection: string;
-  techStack: string[];
-  mvpFeatures: string[];
+  productArchitecture: string;
+  techStack: { name: string; category: string; url?: string }[];
+  kanbanRoadmap: {
+    now: DevKanbanItem[];
+    next: DevKanbanItem[];
+    later: DevKanbanItem[];
+  };
+  mvpFeatures: DevelopmentFeature[];
+  developmentTimeline: { phase: string; duration: string; goal: string }[];
+  htmlLandingPage?: string;
 };
 
 type DevelopmentAgentInput = {
@@ -16,27 +29,26 @@ type DevelopmentAgentInput = {
   strategyOutput: StrategyAgentOutput;
 };
 
-const developmentAgentSystemPrompt = `You are a SaaS product architect.
+const developmentAgentSystemPrompt = `You are an elite SaaS product architect and frontend developer.
 
 Generate:
 
-- Landing page copy
-- Product features
-- CTA
-- Pricing suggestion
-- Recommended tech stack
-- MVP roadmap
+- Product architecture overview
+- Tech Stack (recommend free tools: highlight 'Lovable' for UI, 'Vercel' for deploy, 'Supabase' for DB with links)
+- Kanban Roadmap (Now, Next, Later priority lists)
+- MVP Features
+- Development Timeline
+- An HTML Landing Page (A simple, clean, single-file HTML landing page structure. DO NOT use React/Next.js. Use raw HTML, CSS within a <style> tag, and basic JS if needed. Make it look modern and premium, but keep it as a single string of HTML code. Keep the HTML code concise and under 150 lines total to avoid JSON truncation).
 
 Return JSON only.`;
 
 const emptyDevelopmentAgentOutput: DevelopmentAgentOutput = {
-  heroHeadline: "",
-  heroSubheading: "",
-  features: [],
-  cta: "",
-  pricingSection: "",
+  productArchitecture: "",
   techStack: [],
+  kanbanRoadmap: { now: [], next: [], later: [] },
   mvpFeatures: [],
+  developmentTimeline: [],
+  htmlLandingPage: "",
 };
 
 function stripCodeFences(value: string) {
@@ -48,85 +60,23 @@ function stripCodeFences(value: string) {
     .trim();
 }
 
-function ensureString(value: unknown, key: keyof DevelopmentAgentOutput) {
-  if (typeof value === "string") {
-    return value;
-  }
-
-  if (value && typeof value === "object") {
-    const normalized = JSON.stringify(value);
-
-    if (normalized !== "{}") {
-      return normalized;
-    }
-  }
-
-  throw new Error(`Invalid Development Agent response: "${key}" must be a string.`);
-}
-
-function normalizeObjectItem(item: Record<string, unknown>) {
-  const parts = Object.values(item)
-    .filter((value) => typeof value === "string")
-    .map((value) => value.trim())
-    .filter(Boolean);
-
-  if (parts.length > 0) {
-    return parts.join(": ");
-  }
-}
-
-function ensureStringArray(value: unknown, key: keyof DevelopmentAgentOutput) {
-  if (Array.isArray(value)) {
-    const normalized = value
-      .map((item) => {
-        if (typeof item === "string") {
-          return item.trim();
-        }
-
-        if (item && typeof item === "object") {
-          return normalizeObjectItem(item as Record<string, unknown>);
-        }
-      })
-      .filter((item): item is string => Boolean(item));
-
-    if (normalized.length > 0) {
-      return normalized;
-    }
-  }
-
-  if (typeof value !== "string") {
-    throw new Error(`Invalid Development Agent response: "${key}" must be a string array.`);
-  }
-
-  const normalized = value
-    .split(/\r?\n|;|,/)
-    .map((item) => item.replace(/^[-*•]\s*/, "").trim())
-    .filter(Boolean);
-
-  if (normalized.length > 0) {
-    return normalized;
-  }
-
-  throw new Error(`Invalid Development Agent response: "${key}" must be a string array.`);
-}
-
 export function parseDevelopmentAgentResponse(raw: string): DevelopmentAgentOutput {
-  const normalized = stripCodeFences(raw);
-  const parsed = JSON.parse(normalized) as Partial<DevelopmentAgentOutput>;
+  try {
+    const normalized = stripCodeFences(raw);
+    const parsed = JSON.parse(normalized);
 
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
-    throw new Error("Invalid Development Agent response: expected a JSON object.");
+    return {
+      productArchitecture: parsed.productArchitecture || "",
+      techStack: Array.isArray(parsed.techStack) ? parsed.techStack : [],
+      kanbanRoadmap: parsed.kanbanRoadmap || emptyDevelopmentAgentOutput.kanbanRoadmap,
+      mvpFeatures: Array.isArray(parsed.mvpFeatures) ? parsed.mvpFeatures : [],
+      developmentTimeline: Array.isArray(parsed.developmentTimeline) ? parsed.developmentTimeline : [],
+      htmlLandingPage: parsed.htmlLandingPage || "",
+    };
+  } catch (error) {
+    console.error("Failed to parse development output:", error);
+    return emptyDevelopmentAgentOutput;
   }
-
-  return {
-    heroHeadline: ensureString(parsed.heroHeadline, "heroHeadline"),
-    heroSubheading: ensureString(parsed.heroSubheading, "heroSubheading"),
-    features: ensureStringArray(parsed.features, "features"),
-    cta: ensureString(parsed.cta, "cta"),
-    pricingSection: ensureString(parsed.pricingSection, "pricingSection"),
-    techStack: ensureStringArray(parsed.techStack, "techStack"),
-    mvpFeatures: ensureStringArray(parsed.mvpFeatures, "mvpFeatures"),
-  };
 }
 
 export function createDevelopmentAgentPrompt({
@@ -147,13 +97,23 @@ ${JSON.stringify(strategyOutput, null, 2)}
 
 Return only valid JSON in this exact format:
 {
-  "heroHeadline": "",
-  "heroSubheading": "",
-  "features": [],
-  "cta": "",
-  "pricingSection": "",
-  "techStack": [],
-  "mvpFeatures": []
+  "productArchitecture": "Brief architecture description",
+  "techStack": [
+    { "name": "Lovable", "category": "UI Builder", "url": "https://lovable.dev" },
+    { "name": "Supabase", "category": "Database", "url": "https://supabase.com" }
+  ],
+  "kanbanRoadmap": {
+    "now": [ { "task": "Setup DB", "priority": "High" } ],
+    "next": [ { "task": "User Auth", "priority": "Medium" } ],
+    "later": [ { "task": "Analytics", "priority": "Low" } ]
+  },
+  "mvpFeatures": [
+    { "name": "Feature 1", "description": "Desc..." }
+  ],
+  "developmentTimeline": [
+    { "phase": "Week 1", "duration": "7 days", "goal": "Setup core infra" }
+  ],
+  "htmlLandingPage": "<!DOCTYPE html><html><head><style>body { font-family: sans-serif; }</style></head><body><h1>Landing Page</h1></body></html>"
 }`;
 }
 

@@ -1,6 +1,11 @@
 import { Download, Sparkles } from "lucide-react";
 
 import type { OrchestratorOutput } from "@/lib/orchestrator";
+import type { ContentItem } from "@/lib/content-agent";
+import type {
+  DevelopmentFeature,
+  DevelopmentAgentOutput,
+} from "@/lib/development-agent";
 
 type ResultsSectionProps = {
   prompt: string;
@@ -15,6 +20,22 @@ type DetailBlockProps = {
   items?: string[];
   text?: string;
 };
+
+function formatContentItems(items: ContentItem[]) {
+  return items.map((item) => item.content);
+}
+
+function formatTechStack(items: DevelopmentAgentOutput["techStack"]) {
+  return items.map((item) => `${item.name} (${item.category})`);
+}
+
+function formatMvpFeatures(items: DevelopmentFeature[]) {
+  return items.map((item) => `${item.name}: ${item.description}`);
+}
+
+function formatTimeline(items: DevelopmentAgentOutput["developmentTimeline"]) {
+  return items.map((item) => `${item.phase} (${item.duration}): ${item.goal}`);
+}
 
 function DetailBlock({ title, items, text }: DetailBlockProps) {
   return (
@@ -161,22 +182,25 @@ export function ResultsSection({
                   Content Results
                 </p>
                 <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                  <DetailBlock title="Blog Ideas" items={results.content.blogIdeas} />
+                  <DetailBlock
+                    title="Blog Ideas"
+                    items={formatContentItems(results.content.blogIdeas)}
+                  />
                   <DetailBlock
                     title="LinkedIn Posts"
-                    items={results.content.linkedinPosts}
+                    items={formatContentItems(results.content.linkedinPosts)}
                   />
                   <DetailBlock
                     title="Twitter Posts"
-                    items={results.content.twitterPosts}
+                    items={formatContentItems(results.content.twitterPosts)}
                   />
                   <DetailBlock
                     title="Newsletter Topics"
-                    items={results.content.newsletterTopics}
+                    items={formatContentItems(results.content.newsletterTopics)}
                   />
                   <DetailBlock
                     title="YouTube Ideas"
-                    items={results.content.youtubeIdeas}
+                    items={formatContentItems(results.content.youtubeIdeas)}
                   />
                 </div>
               </article>
@@ -187,29 +211,20 @@ export function ResultsSection({
                 </p>
                 <div className="mt-5 grid gap-4 lg:grid-cols-2">
                   <DetailBlock
-                    title="Hero Headline"
-                    text={results.development.heroHeadline}
-                  />
-                  <DetailBlock
-                    title="Hero Subheading"
-                    text={results.development.heroSubheading}
-                  />
-                  <DetailBlock
-                    title="Features"
-                    items={results.development.features}
-                  />
-                  <DetailBlock title="CTA" text={results.development.cta} />
-                  <DetailBlock
-                    title="Pricing Section"
-                    text={results.development.pricingSection}
+                    title="Product Architecture"
+                    text={results.development.productArchitecture}
                   />
                   <DetailBlock
                     title="Tech Stack"
-                    items={results.development.techStack}
+                    items={formatTechStack(results.development.techStack)}
                   />
                   <DetailBlock
                     title="MVP Features"
-                    items={results.development.mvpFeatures}
+                    items={formatMvpFeatures(results.development.mvpFeatures)}
+                  />
+                  <DetailBlock
+                    title="Development Timeline"
+                    items={formatTimeline(results.development.developmentTimeline)}
                   />
                 </div>
               </article>

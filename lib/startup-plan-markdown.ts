@@ -4,6 +4,30 @@ function renderList(items: string[]) {
   return items.map((item) => `- ${item}`).join("\n");
 }
 
+function renderContentList(items: Array<{ content: string }>) {
+  return renderList(items.map((item) => item.content));
+}
+
+function renderTechStack(
+  items: Array<{ name: string; category: string; url?: string }>
+) {
+  return renderList(items.map((item) => `${item.name} (${item.category})`));
+}
+
+function renderFeatureList(
+  items: Array<{ name: string; description: string }>
+) {
+  return renderList(items.map((item) => `${item.name}: ${item.description}`));
+}
+
+function renderTimeline(
+  items: Array<{ phase: string; duration: string; goal: string }>
+) {
+  return renderList(
+    items.map((item) => `${item.phase} (${item.duration}): ${item.goal}`)
+  );
+}
+
 export function buildStartupPlanMarkdown(
   prompt: string,
   results: OrchestratorOutput
@@ -56,41 +80,32 @@ ${renderList(results.strategy.launchPlan)}
 
 ## Content Results
 ### Blog Ideas
-${renderList(results.content.blogIdeas)}
+${renderContentList(results.content.blogIdeas)}
 
 ### LinkedIn Posts
-${renderList(results.content.linkedinPosts)}
+${renderContentList(results.content.linkedinPosts)}
 
 ### Twitter Posts
-${renderList(results.content.twitterPosts)}
+${renderContentList(results.content.twitterPosts)}
 
 ### Newsletter Topics
-${renderList(results.content.newsletterTopics)}
+${renderContentList(results.content.newsletterTopics)}
 
 ### YouTube Ideas
-${renderList(results.content.youtubeIdeas)}
+${renderContentList(results.content.youtubeIdeas)}
 
 ## Development Results
-### Hero Headline
-${results.development.heroHeadline}
-
-### Hero Subheading
-${results.development.heroSubheading}
-
-### Features
-${renderList(results.development.features)}
-
-### CTA
-${results.development.cta}
-
-### Pricing Section
-${results.development.pricingSection}
+### Product Architecture
+${results.development.productArchitecture}
 
 ### Tech Stack
-${renderList(results.development.techStack)}
+${renderTechStack(results.development.techStack)}
 
 ### MVP Features
-${renderList(results.development.mvpFeatures)}
+${renderFeatureList(results.development.mvpFeatures)}
+
+### Development Timeline
+${renderTimeline(results.development.developmentTimeline)}
 
 ## Pitch Results
 ### Problem
