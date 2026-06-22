@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Sidebar, AGENT_LIST } from "./sidebar";
+import { Sidebar } from "./sidebar";
 import { ModeSwitcher, AppMode } from "./mode-switcher";
 import { BusinessOrchestrator } from "./business-orchestrator";
 import { AgentPlayground } from "./agent-playground";
-import { AgentRuntimeStatus, defaultPrompt, workflowSteps } from "@/lib/site-data";
+import { AgentRuntimeStatus, workflowSteps } from "@/lib/site-data";
 import { OrchestratorOutput } from "@/lib/orchestrator";
 import { Sparkles } from "lucide-react";
 
@@ -17,9 +17,6 @@ const runtimeDelay = (ms: number) =>
 const createQueuedStatuses = (): Record<string, AgentRuntimeStatus> =>
   Object.fromEntries(workflowSteps.map((step) => [step.id, "Queued"]));
 
-const createCompletedStatuses = (): Record<string, AgentRuntimeStatus> =>
-  Object.fromEntries(workflowSteps.map((step) => [step.id, "Completed"]));
-
 export function AppShell() {
   const [currentMode, setCurrentMode] = useState<AppMode>("orchestrator");
   const [selectedAgentId, setSelectedAgentId] = useState<string>("research");
@@ -29,22 +26,6 @@ export function AppShell() {
   const [statuses, setStatuses] = useState<Record<string, AgentRuntimeStatus>>(
     createQueuedStatuses()
   );
-
-  const animateWorkflow = async () => {
-    for (const step of workflowSteps) {
-      setStatuses((current) => ({
-        ...current,
-        [step.id]: "Loading",
-      }));
-      await runtimeDelay(950);
-
-      setStatuses((current) => ({
-        ...current,
-        [step.id]: "Completed",
-      }));
-      await runtimeDelay(350);
-    }
-  };
 
   const handleGenerateWorkflow = async (prompt: string, selectedAgents: string[]) => {
     if (isGenerating) return;
