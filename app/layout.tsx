@@ -20,6 +20,8 @@ export const metadata: Metadata = {
     "An AI Operating System for Startup Creation. Orchestrate specialized AI agents or use them independently.",
 };
 
+import { Agentation } from "agentation";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,6 +31,7 @@ export default function RootLayout({
     <html lang="en" className={`${sansFont.variable} ${interFont.variable}`}>
       <body className="min-h-screen bg-background text-text-primary antialiased flex flex-col relative overflow-x-hidden font-sans">
         {children}
+        {process.env.NODE_ENV === "development" && <Agentation />}
       </body>
     </html>
   );
