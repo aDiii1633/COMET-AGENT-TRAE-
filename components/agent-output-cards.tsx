@@ -191,39 +191,35 @@ export function AgentOutputCards({
     }
 
     if (id === "pitch" && results) {
-      // Dynamic import of pptxgenjs for Pitch
       try {
         const PptxGenJS = (await import("pptxgenjs")).default;
         const pptx = new PptxGenJS();
         pptx.layout = "LAYOUT_WIDE";
 
         const res: any = results;
-        const slides = res.pitch?.slides;
-        if (!slides) return;
+        const pitchData = res.pitch;
+        if (!pitchData) return;
 
-        const slideEntries = [
-          { key: "problem", label: "THE PROBLEM" },
-          { key: "solution", label: "OUR SOLUTION" },
-          { key: "market", label: "MARKET SIZE" },
-          { key: "revenue", label: "REVENUE MODEL" },
-          { key: "advantage", label: "UNFAIR ADVANTAGE" },
-          { key: "futureVision", label: "FUTURE VISION" },
+        const slidesList = [
+          { id: "problem", label: "THE PROBLEM", title: "The Problem", content: pitchData.problem, metric: "Critical Issue" },
+          { id: "solution", label: "OUR SOLUTION", title: "Our Solution", content: pitchData.solution, metric: "10x Better" },
+          { id: "market", label: "MARKET SIZE", title: "Market Size & Opportunity", content: pitchData.market, metric: "$10B+ TAM" },
+          { id: "revenue", label: "REVENUE MODEL", title: "Revenue Model", content: pitchData.businessModel, metric: "High Margin" },
+          { id: "advantage", label: "UNFAIR ADVANTAGE", title: "Competitive Advantage", content: pitchData.competitiveAdvantage, metric: "Defensible" },
+          { id: "futureVision", label: "FUTURE VISION", title: "Future Vision", content: pitchData.futureVision, metric: "Scale" },
         ];
 
-        for (const entry of slideEntries) {
-          const slideData = slides[entry.key];
-          if (!slideData) continue;
-
+        for (const slideData of slidesList) {
           const slide = pptx.addSlide();
           slide.background = { fill: "0F172A" };
 
-          slide.addText(entry.label, {
+          slide.addText(slideData.label, {
             x: 0.8, y: 0.5, w: 8, h: 0.5,
             fontSize: 12, color: "38BDF8", bold: true,
             fontFace: "Arial",
           });
 
-          slide.addText(slideData.title || "", {
+          slide.addText(slideData.title, {
             x: 0.8, y: 1.2, w: 8, h: 1,
             fontSize: 28, color: "FFFFFF", bold: true,
             fontFace: "Arial",

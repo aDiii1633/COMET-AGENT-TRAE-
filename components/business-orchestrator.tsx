@@ -17,9 +17,18 @@ interface BusinessOrchestratorProps {
   onGenerateWorkflow: (prompt: string, selectedAgents: string[]) => void;
   isGenerating: boolean;
   results: OrchestratorOutput | null;
+  error?: string | null;
+  onClearError?: () => void;
 }
 
-export function BusinessOrchestrator({ statuses, onGenerateWorkflow, isGenerating, results }: BusinessOrchestratorProps) {
+export function BusinessOrchestrator({
+  statuses,
+  onGenerateWorkflow,
+  isGenerating,
+  results,
+  error = null,
+  onClearError,
+}: BusinessOrchestratorProps) {
   const [prompt, setPrompt] = useState("");
 
   const [selectedAgents, setSelectedAgents] = useState<Record<string, boolean>>(() => {
@@ -32,7 +41,11 @@ export function BusinessOrchestrator({ statuses, onGenerateWorkflow, isGeneratin
 
   const hasOutput: Record<string, boolean> = {};
   if (results) {
-    AGENT_LIST.forEach(a => hasOutput[a.id] = true);
+    AGENT_LIST.forEach(a => {
+      if (results[a.id as keyof OrchestratorOutput]) {
+        hasOutput[a.id] = true;
+      }
+    });
   }
 
   const toggleAgent = (id: string) => {
@@ -96,6 +109,27 @@ export function BusinessOrchestrator({ statuses, onGenerateWorkflow, isGeneratin
               </div>
               <p className="text-text-secondary text-sm">Define your business goal and let the AI workforce build the foundation.</p>
             </div>
+
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center justify-between text-sm shadow-sm"
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+                  <span>{error}</span>
+                </div>
+                {onClearError && (
+                  <button
+                    onClick={onClearError}
+                    className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-100/50 transition-colors shrink-0 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </motion.div>
+            )}
 
             <div className="glass-card p-6 rounded-2xl">
               <label className="block text-xs font-semibold text-text-secondary mb-2 uppercase tracking-wider">
