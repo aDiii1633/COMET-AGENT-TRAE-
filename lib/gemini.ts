@@ -42,40 +42,64 @@ export async function generateText(
     ? "https://openrouter.ai/api/v1/chat/completions"
     : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
+  const openRouterModels = [
+    "google/gemini-2.5-flash",
+    "google/gemini-2.5-flash:free",
+    "google/gemini-2.5-pro",
+    "meta-llama/llama-3.3-70b-instruct:free",
+  ];
+
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       let responseText = "";
 
       if (isOpenRouter) {
-        // OpenRouter / OpenAI format
-        const messages = [];
-        if (options.systemInstruction) {
-          messages.push({ role: "system", content: options.systemInstruction });
+        let lastError: unknown = null;
+        for (const candidateModel of openRouterModels) {
+          try {
+            console.log(`[OpenRouter] Attempting generation with model: ${candidateModel}`);
+            const messages = [];
+            if (options.systemInstruction) {
+              messages.push({ role: "system", content: options.systemInstruction });
+            }
+            messages.push({ role: "user", content: normalizedPrompt });
+
+            const res = await fetch(baseUrl, {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                "HTTP-Referer": "http://localhost:3000", 
+                "X-Title": "COMET AGENT",
+              },
+              body: JSON.stringify({
+                model: candidateModel,
+                messages: messages,
+                max_tokens: 1700,
+              })
+            });
+
+            if (!res.ok) {
+              const errData = await res.text();
+              throw new Error(`OpenRouter API error: ${res.status} ${errData}`);
+            }
+
+            const data = (await res.json()) as {
+              choices?: { message?: { content?: string } }[];
+            };
+            responseText = data.choices?.[0]?.message?.content || "";
+            if (responseText) {
+              break; // Successfully got response
+            }
+          } catch (error: unknown) {
+            console.warn(`[OpenRouter] Model ${candidateModel} failed:`, error);
+            lastError = error;
+          }
         }
-        messages.push({ role: "user", content: normalizedPrompt });
 
-        const res = await fetch(baseUrl, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "http://localhost:3000", 
-            "X-Title": "COMET AGENT",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash", // Specify OpenRouter model string
-            messages: messages,
-            max_tokens: 1700,
-          })
-        });
-
-        if (!res.ok) {
-          const errData = await res.text();
-          throw new Error(`OpenRouter API error: ${res.status} ${errData}`);
+        if (!responseText) {
+          throw lastError || new Error("All OpenRouter models failed to respond.");
         }
-
-        const data = await res.json();
-        responseText = data.choices?.[0]?.message?.content || "";
       } else {
         // Google GenAI Format
         const ai = getGeminiClient();
